@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+package gitlab.ozon.dev.go.classroom_10.students.workshop_3.pkg.notes.v1;
+
+option go_package = "https://gitlab.ozon.dev/tolstybai/student-project/loms/pkg/api/loms/v1;loms";
+
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "LOMS";
+    version: "1.0.0";
+  };
+  schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+  host: "localhost:3000"
+};
+
+
+service Loms{
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "LOMS"
+    external_docs: {
+      url: "https://github.com/grpc-ecosystem/grpc-gateway/blob/main/examples/internal/proto/examplepb/a_bit_of_everything.proto";
+      description: "Find out more about grpc-gateway";
+    }
+  };
+
+  rpc OrderCreate(OrderCreateRequest) returns (OrderCreateResponse){
+    option (google.api.http) = {
+      post: "/v1/order/create"
+      body: "*"
+    };
+  };
+  rpc OrderInfo (OrderInfoRequest) returns (OrderInfoResponse){
+    option (google.api.http) = {
+      post: "/v1/order/info"
+      body: "*"
+    };
+  };
+  rpc OrderPay(OrderPayRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/order/pay"
+      body: "*"
+    };
+  };
+  rpc OrderCancel(OrderCancelRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/order/cancel"
+      body: "*"
+    };
+  };
+  rpc StocksInfo(StocksInfoRequest) returns (StocksInfoResponse) {
+    option (google.api.http) = {
+      post: "/v1/stock/info"
+      body: "*"
+    };
+  };
+}
+
+message OrderCreateRequest{
+  int64 user = 1;
+  repeated Item items = 2;
+}
+
+message Item{
+  uint32 sku = 1;
+  uint32 count = 2 [(validate.rules).uint32.gt = 0];
+}
+
+message OrderCreateResponse{
+  int64 order_id = 1;
+}
+
+message OrderInfoRequest{
+  int64 order_id = 1;
+}
+
+message OrderInfoResponse{
+  Statuses status = 1 [(validate.rules).enum = {in: [0, 4]}];
+  int64 user = 2 [(validate.rules).int64.gte = 0];
+  repeated Item items = 3;
+}
+
+message OrderPayRequest{
+  int64 order_id = 1 [(validate.rules).int64.gte = 0];
+}
+
+message OrderCancelRequest{
+  int64 order_id = 1 [(validate.rules).int64.gte = 0];
+}
+
+message StocksInfoRequest{
+  uint32 sku = 1;
+}
+
+message StocksInfoResponse{
+  uint32 count = 1;
+}
+
+enum Statuses {
+  NEW = 0;
+  AWAITING_PAYMENT = 1;
+  FAILED = 2;
+  PAYED = 3;
+  CANCELLED = 4;
+}
+

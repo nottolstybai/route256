@@ -1,0 +1,26 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "../internal/repository/db/order"
+    schema: "../migrations"
+    gen:
+      go:
+        package: "order"
+        out: "../internal/repository/db/order"
+        sql_package: "pgx/v5"
+  - engine: "postgresql"
+    queries: "../internal/repository/db/stock"
+    schema: "../migrations"
+    gen:
+      go:
+        package: "stock"
+        out: "../internal/repository/db/stock"
+        sql_package: "pgx/v5"
+  - engine: "postgresql"
+    queries: "../internal/repository/db/outbox"
+    schema: "../migrations"
+    gen:
+      go:
+        package: "outbox"
+        out: "../internal/repository/db/outbox"
+        sql_package: "pgx/v5"
